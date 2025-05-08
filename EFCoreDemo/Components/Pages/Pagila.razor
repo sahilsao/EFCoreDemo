@@ -1,0 +1,69 @@
+﻿@page "/pagila"
+@rendermode InteractiveServer
+
+@using EFCoreDemo.Data
+@using EFCoreDemo.Models
+@using Microsoft.EntityFrameworkCore
+
+@inject SakilaContext DbContext
+
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<PageTitle>Sakila</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Pagila Database Practice</MudText>
+<MudText Typo="Typo.body1" Class="mb-8">This component demonstrates fetching data from the pagila database.</MudText>
+
+<MudGrid>
+	<MudItem xs="12" sm="7">
+		<MudPaper Class="pa-4">
+			<MudStack Row="true">
+				<MudText Typo="Typo.body1"><strong> Find By First Name: </strong></MudText>
+
+				<MudTextField @bind-Value="FirstNm" Variant="Variant.Text" Margin="Margin.Dense"></MudTextField>
+			</MudStack>
+			<MudButton OnClick="SearchActor" Color="Color.Primary" Variant="Variant.Filled" Class="mt-2">Search</MudButton>
+
+			@if (searchPerformed)
+			{
+				@if (data != null)
+				{
+					<MudText Typo="Typo.body1" Class="mt-2">Found Actor: @data.FirstName @data.LastName</MudText>
+				}
+				else
+				{
+					<MudText Typo="Typo.body2" Class="mt-2">No actor first name is or only use First name '@FirstNm' found.</MudText>
+				}
+			}
+
+		</MudPaper>
+	</MudItem>
+</MudGrid>
+
+@code {
+
+	private string FirstNm = string.Empty;
+
+	private Actor? data;
+
+	private bool searchPerformed = false;
+
+	private async Task SearchActor()
+	{
+		searchPerformed = false;
+		if (!string.IsNullOrWhiteSpace(FirstNm))
+		{
+			data = await DbContext.Actors
+				.Where(a => a.FirstName == FirstNm.ToUpper()) // assuming names in DB are uppercase
+				.FirstOrDefaultAsync();
+		}
+		else
+		{
+			data = null;
+		}
+
+		searchPerformed = true;
+	}
+}
